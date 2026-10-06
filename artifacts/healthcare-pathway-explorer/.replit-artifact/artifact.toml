@@ -1,0 +1,28 @@
+kind = "web"
+previewPath = "/"
+title = "Healthcare Pathway Explorer"
+description = "A supportive, mobile-friendly tool for students exploring healthcare careers and preparing for an advisor conversation, with transparent program facts and no eligibility decisions."
+version = "1.0.0"
+id = "artifacts/healthcare-pathway-explorer"
+router = "path"
+
+[[services]]
+name = "web"
+paths = [ "/" ]
+localPort = 24121
+
+[services.development]
+run = "pnpm --filter @workspace/healthcare-pathway-explorer run dev"
+
+[services.production]
+build = [ "pnpm", "--filter", "@workspace/healthcare-pathway-explorer", "run", "build" ]
+serve = "static"
+publicDir = "artifacts/healthcare-pathway-explorer/dist/public"
+
+[[services.production.rewrites]]
+from = "/*"
+to = "/index.html"
+
+[services.env]
+PORT = "24121"
+BASE_PATH = "/"
