@@ -40,12 +40,12 @@ The app labels these limitations as **Sample data—not verified programs** and 
 This is a student prototype, not an official ATI, NHA, or university product.
 
 ## Three test cases
-Codex manually verified all three typical/no-match/empty cases in Safari after styling on October 6, 2026, and all passed. This Safari verification is reported by the project owner; Replit Agent did not rerun Safari. Replit Agent separately checked all three flows in Chromium after the blue-and-gold design update, along with summary editing, revise/reset, and mobile layout.
+Codex checked these three cases in Safari on October 6. Replit Agent also checked the updated version after the visual changes.
 
 | Test | What was entered | What happened | Result |
 | --- | --- | --- | --- |
 | Typical | Patient care, in person, up to 12 months, weekday daytime; budget and location unsure | One sample pathway appeared with reasons it fit, reasons other options didn't, advisor questions, and an editable summary. | Pass |
-| No-match | Patient care, online, up to 12 months, evenings/weekends | No matches appeared. The app explained why and gave advisor questions without changing the student's choices. | Pass |
+| Challenge (no match) | Patient care, online, up to 12 months, evenings/weekends | No matches appeared. The app explained why and gave advisor questions without changing the student's choices. | Pass |
 | Empty | No interest selected; everything else left unsure | The app asked the student to choose an interest or Unsure before continuing. | Pass |
 
 ## Known limitations

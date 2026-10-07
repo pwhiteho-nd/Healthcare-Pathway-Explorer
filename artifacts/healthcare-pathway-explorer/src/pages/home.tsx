@@ -1,5 +1,10 @@
 import { useMemo, useState } from 'react';
 import { useForm } from 'react-hook-form';
+import {
+  Accessibility, ArrowRight, BookOpen, ChartNoAxesCombined, ClipboardList, Compass,
+  FlaskConical, GraduationCap, HeartHandshake, HeartPulse, ScanLine, SlidersHorizontal,
+  Stethoscope, Users, type LucideIcon,
+} from 'lucide-react';
 import { Form } from '@/components/ui/form';
 import {
   BUDGET_OPTIONS, EMPTY_FORM, FREE_TEXT_MAX, INTEREST_OPTIONS, LOCATION_OPTIONS, SAMPLE_LABEL, SCHEDULE_OPTIONS,
@@ -11,6 +16,26 @@ const card = 'hpe-card rounded-xl border bg-card p-5 sm:p-7';
 const btn = 'hpe-button min-h-11 rounded-lg px-5 py-3 font-bold focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring';
 const primary = `${btn} hpe-primary bg-primary text-primary-foreground`;
 const outline = `${btn} border-2 border-primary text-primary bg-card`;
+
+const interestIcons: Record<string, LucideIcon> = {
+  'patient-care': HeartPulse,
+  'lab-diagnostics': FlaskConical,
+  imaging: ScanLine,
+  'mental-health': HeartHandshake,
+  'rehab-therapy': Accessibility,
+  'health-data': ChartNoAxesCombined,
+  'public-health': Users,
+  unsure: Compass,
+};
+
+function InterestIcon({ id }: { id: string }) {
+  const Icon = interestIcons[id] ?? Compass;
+  return <Icon className="hpe-interest-icon size-5 shrink-0" aria-hidden="true" />;
+}
+
+function SectionIcon({ icon: Icon }: { icon: LucideIcon }) {
+  return <span className="hpe-section-icon" aria-hidden="true"><Icon size={19} /></span>;
+}
 
 type Opt = { id: string; label: string };
 function Radios({ name, legend, opts, value, onChange }: { name: string; legend: string; opts: readonly Opt[]; value: string; onChange: (v: string) => void }) {
@@ -66,8 +91,11 @@ export default function Home() {
     <div className="pathway-app min-h-[100dvh]">
       <header className="hpe-header border-b bg-card">
         <div className="mx-auto max-w-3xl px-4 py-7 sm:py-9 space-y-4">
-          <h1 className="text-3xl sm:text-4xl font-bold tracking-tight" data-testid="text-title">Healthcare Pathway Explorer</h1>
-          <p className="text-muted-foreground">You have more healthcare directions to explore. Use this worksheet to prepare for an advising conversation.</p>
+          <h1 className="flex items-center gap-3 text-3xl font-bold tracking-tight" data-testid="text-title">
+            <span className="hpe-welcome-icon" aria-hidden="true"><Stethoscope size={25} /></span>
+            <span>Healthcare Pathway Explorer</span>
+          </h1>
+          <p className="text-muted-foreground">Your interests are a good place to start. Explore a few examples and prepare for a conversation with your advisor. It’s okay to be unsure.</p>
           <div className="flex flex-wrap gap-2">
             <span className="rounded-md bg-accent text-accent-foreground border border-accent-foreground/40 px-3 py-1 font-bold" data-testid="badge-sample-data">{SAMPLE_LABEL}</span>
             <span className="rounded-md bg-secondary text-secondary-foreground border border-secondary-foreground/40 px-3 py-1 font-bold" data-testid="badge-simulated-ai">{SIM_LABEL}</span>
@@ -106,7 +134,7 @@ export default function Home() {
             )}
 
             <fieldset className={card} aria-describedby="interest-help" data-testid="fieldset-interests">
-              <legend className="px-1 text-lg font-bold">Interests</legend>
+              <legend className="inline-flex items-center gap-2 px-1 text-lg font-bold"><SectionIcon icon={Compass} />Your interests</legend>
               <p id="interest-help" className="text-muted-foreground mb-3">Choose areas that sound interesting, or choose Unsure. No need to know your next step yet.</p>
               <div className="grid gap-2 sm:grid-cols-2">
                 {INTEREST_OPTIONS.map((o) => (
@@ -115,6 +143,7 @@ export default function Home() {
                       onChange={(e) => set('interests', e.target.checked ? (o.id === 'unsure' ? ['unsure'] : [...form.interests.filter((i) => i !== 'unsure'), o.id]) : form.interests.filter((i) => i !== o.id))}
                       aria-invalid={!!(submitted && validation.errors.interests)}
                       data-testid={`checkbox-interest-${o.id}`} />
+                    <InterestIcon id={o.id} />
                     <span>{o.label}</span>
                   </label>
                 ))}
@@ -135,7 +164,7 @@ export default function Home() {
             </fieldset>
 
             <section className={`${card} space-y-6`}>
-              <h2 className="text-lg font-bold">Practical constraints</h2>
+              <h2 className="flex items-center gap-3 text-lg font-bold"><SectionIcon icon={SlidersHorizontal} />Practical constraints</h2>
               <p className="text-muted-foreground -mt-4">Choose "Unsure" for anything you have not decided. Unsure means no constraint is applied.</p>
               <Radios name="location" legend="Learning format" opts={LOCATION_OPTIONS} value={form.location} onChange={(v) => set('location', v)} />
               <div>
@@ -150,7 +179,7 @@ export default function Home() {
             </section>
 
             <div className="flex flex-wrap gap-3">
-              <button type="submit" className={primary} data-testid="button-submit">See sample pathways</button>
+              <button type="submit" className={`${primary} inline-flex items-center gap-2`} data-testid="button-submit">See sample pathways<ArrowRight size={18} aria-hidden="true" /></button>
               <button type="button" onClick={reset} className={outline} data-testid="button-reset">Reset worksheet</button>
             </div>
           </form></Form>
@@ -178,7 +207,7 @@ export default function Home() {
                 <h2 id="results-h" className="text-xl font-bold" data-testid="text-results-count">{result.matches.length} sample scenario{result.matches.length === 1 ? '' : 's'} meeting your selected criteria</h2>
                 {result.matches.map((m) => (
                   <article key={m.record.id} className={card} data-testid={`card-pathway-${m.record.id}`}>
-                    <h3 className="text-lg font-bold">{m.record.title}</h3>
+                    <h3 className="flex items-start gap-3 text-lg font-bold"><SectionIcon icon={GraduationCap} /><span>{m.record.title}</span></h3>
                     <p className="text-sm text-muted-foreground">Fictional demonstration only. Institution/provider, location, cost/basis, requirements, source URL, and verification date: not supplied.</p>
                     <p className="mt-2 text-sm" data-testid={`facts-${m.record.id}`}><strong>Fictional scenario assumptions:</strong> {m.record.format}; {m.record.durationMonths} months; {m.record.schedule === 'evening-weekend' ? 'evenings/weekends' : m.record.schedule} schedule.</p>
                     <dl className="mt-3 grid grid-cols-2 gap-x-4 gap-y-1 text-sm">
@@ -212,16 +241,16 @@ export default function Home() {
               </section>
             )}
 
-            <h2 id="advising-prep" className="text-2xl font-bold scroll-mt-6">Prepare for advising</h2>
+            <h2 id="advising-prep" className="flex items-center gap-3 text-2xl font-bold scroll-mt-6"><SectionIcon icon={BookOpen} />Prepare for advising</h2>
             <section className={card} data-testid="section-questions">
-              <h2 className="text-lg font-bold">Questions to bring to your advisor</h2>
+              <h2 className="flex items-center gap-3 text-lg font-bold"><SectionIcon icon={HeartHandshake} />Questions to bring to your advisor</h2>
               <ul className="mt-2 list-disc pl-5 space-y-1">
                 {buildAdvisorQuestions(form, result).map((q) => <li key={q}>{q}</li>)}
               </ul>
             </section>
 
             <section className={card} data-testid="section-summary">
-              <h2 className="text-lg font-bold"><label htmlFor="summary">Advisor summary (editable)</label></h2>
+              <h2 className="flex items-center gap-3 text-lg font-bold"><SectionIcon icon={ClipboardList} /><label htmlFor="summary">Advisor summary (editable)</label></h2>
               <p className="text-sm text-muted-foreground">Edit this text before you copy or print it. Edits stay in this page only.</p>
               <textarea id="summary" rows={16} value={summary} onChange={(e) => setSummary(e.target.value)}
                 className="mt-2 w-full rounded-md border-2 border-input bg-background p-3 font-mono text-sm print:hidden" data-testid="input-summary" />
