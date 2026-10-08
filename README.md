@@ -6,7 +6,7 @@ This is my first prototype for helping students who don't get into nursing but s
 Students choose their interests and preferences for training time, schedule, learning format, budget, and location. They can choose Unsure if they haven't decided. The app shows sample pathways, explains what fits or doesn't fit, and gives them questions for an advisor. They can edit, copy, or print their summary, go back to change answers, or reset the form. It doesn't decide whether someone qualifies for a program.
 
 ## How to open it
-Open the [Replit project](https://replit.com/@pwhiteho/Healthcare-Pathway-Explorer) and use the Preview pane. I still need to check that the prototype link opens for other people before submitting.
+Open the [Replit project](https://replit.com/@pwhiteho/Healthcare-Pathway-Explorer) and use the Preview pane. The workspace link returned 404 when signed out, so it is not a verified public prototype link. I'm preparing Static publishing, but I haven't verified a published public link yet.
 
 ## Run the source
 Use Node.js 24 and pnpm 10 in Replit or Linux. The current workspace configuration and lockfile target Linux.
@@ -54,4 +54,4 @@ Codex checked these three cases in Safari on October 6. Replit Agent also checke
 3. **Answers aren't saved.** Refreshing or resetting clears the form and summary edits. Students can copy or print the summary, and I need to see whether that's enough for an advising meeting.
 
 ## Still to finish
-I still need to check that the prototype link opens for other people before submitting.
+I still need to publish the static frontend and check that the published link opens for other people before submitting.
