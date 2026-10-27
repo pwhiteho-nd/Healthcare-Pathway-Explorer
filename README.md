@@ -6,7 +6,7 @@ This is my first prototype for helping students who don't get into nursing but s
 Students choose their interests and preferences for training time, schedule, learning format, budget, and location. They can choose Unsure if they haven't decided. The app shows sample pathways, explains what fits or doesn't fit, and gives them questions for an advisor. They can edit, copy, or print their summary, go back to change answers, or reset the form. It doesn't decide whether someone qualifies for a program.
 
 ## How to open it
-Open the [Replit project](https://replit.com/@pwhiteho/Healthcare-Pathway-Explorer) and use the Preview pane. The workspace link returned 404 when signed out, so it is not a verified public prototype link. I'm preparing free GitHub Pages at [this address](https://pwhiteho-nd.github.io/Healthcare-Pathway-Explorer/). Public access is pending until I enable Pages and check the published link while signed out.
+Open the [live demo](https://healthcare-pathway-explorer.replit.app/). No sign-in is needed. Choose your interests and preferences, then select "See sample pathways" to explore examples and prepare for advising.
 
 ## Run the source
 Use Node.js 24 and pnpm 10 in Replit or Linux. The current workspace configuration and lockfile target Linux.
@@ -30,19 +30,6 @@ PORT=5173 BASE_PATH=/ pnpm --filter @workspace/healthcare-pathway-explorer run b
 
 The pathway records, matching rules, validation, and summary/question templates are in `artifacts/healthcare-pathway-explorer/src/lib/pathway-logic.ts`. The form and results page are in `src/pages/home.tsx` in that same app folder. The tests cover the three cases below, unknown costs/locations, invalid inputs, Unsure, TEAS-neutral matching, and advisor-question grammar.
 
-## Build for GitHub Pages
-Use the same Node.js 24 and pnpm 10 setup:
-
-```sh
-pnpm install --frozen-lockfile
-PORT=5173 BASE_PATH=/Healthcare-Pathway-Explorer/ pnpm --filter @workspace/healthcare-pathway-explorer run build
-touch artifacts/healthcare-pathway-explorer/dist/public/.nojekyll
-```
-
-Put only the contents of `artifacts/healthcare-pathway-explorer/dist/public` at the root of `gh-pages`, including `.nojekyll`. Don't copy source files, attachments, secrets, or local Git history.
-
-In the repository's Settings > Pages, choose **Deploy from a branch**, **gh-pages**, and **/(root)**, then save. The source stays on `main`; public access is still pending until the published link is checked.
-
 ## How AI is used
 Eventually, AI would help make sense of what a student writes and explain how real programs fit their goals. Right now, that part is simulated using preset rules and responses. There is no live AI connection.
 
@@ -53,7 +40,7 @@ The app labels these limitations as **Sample data—not verified programs** and 
 This is a student prototype, not an official ATI, NHA, or university product.
 
 ## Three test cases
-Codex checked these three cases in Safari on October 6. Replit Agent also checked the updated version after the visual changes.
+Codex checked these three cases in Safari on October 6. Replit Agent also checked the updated version after the visual changes. Codex checked all three cases again on the public demo on October 27, and all passed.
 
 | Test | What was entered | What happened | Result |
 | --- | --- | --- | --- |
@@ -65,6 +52,3 @@ Codex checked these three cases in Safari on October 6. Replit Agent also checke
 1. **The programs are examples.** They can't confirm real costs or locations yet. My next step would be to add a small set of verified programs in the South Bend area.
 2. **AI is simulated.** It doesn't understand written answers yet. I want to test whether real AI explanations would help more than the current preset responses, using verified program information.
 3. **Answers aren't saved.** Refreshing or resetting clears the form and summary edits. Students can copy or print the summary, and I need to see whether that's enough for an advising meeting.
-
-## Still to finish
-I still need to enable GitHub Pages and check that the published link opens for other people before submitting.
