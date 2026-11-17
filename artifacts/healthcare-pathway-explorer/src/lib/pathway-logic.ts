@@ -169,7 +169,9 @@ export function evaluatePathway(v: FormValues, r: PathwayRecord): PathwayMatch {
 }
 
 export interface MatchResult {
-  matches: PathwayMatch[]; // fixed sample order; not a ranking
+  matches: PathwayMatch[]; // no stated conflicts or unknown constraints
+  options: PathwayMatch[]; // discussion order, never an eligibility ranking
+  explorationOnly: boolean;
   excluded: PathwayMatch[];
   noMatch: boolean;
 }
@@ -179,14 +181,31 @@ export function matchPathways(v: FormValues, records: PathwayRecord[] = PATHWAYS
    const meetsCriteria = (m: PathwayMatch) => m.conflicts.length === 0 && !Object.values(m.statuses).includes('unknown');
    const matches = all.filter(meetsCriteria).slice(0, 5);
    const excluded = all.filter((m) => !meetsCriteria(m));
-  return { matches, excluded, noMatch: matches.length === 0 };
+  // Interest relevance first, then fewer explicit conflicts. Unknown facts never count as met.
+  // Stable sample order breaks ties; no probability or admissions inference is calculated.
+  const options = [...all].sort((a, b) => b.overlap.length - a.overlap.length || a.conflicts.length - b.conflicts.length);
+  const explorationOnly = v.interests.includes('unsure') && v.location === 'unsure' && v.trainingTime === 'unsure' && (v.schedule === 'unsure' || v.schedule === 'flexible') && (v.budget === 'unsure' || v.budget === 'flexible') && !v.preferredPlace.trim();
+  return { matches, excluded, options, explorationOnly, noMatch: matches.length === 0 };
+}
+
+export function optionLabel(m: PathwayMatch, explorationOnly = false): string {
+  if (explorationOnly) return 'Exploration example — no preferences to assess';
+  if (m.conflicts.length) return 'Conflicts to discuss — not a full fit';
+  if (Object.values(m.statuses).includes('unknown')) return 'Needs verification — fit cannot be confirmed';
+  return 'Fits selected sample preferences — real program fit unverified';
+}
+
+export function optionQuestion(m: PathwayMatch): string {
+  return m.conflicts.length
+    ? `Can we find a real alternative to ${m.record.title} that meets my stated preferences? The conflicts to resolve are: ${m.conflicts.join(' ')}`
+    : `For ${m.record.title}, which real programs, if any, can you verify against my budget, region, and other preferences?`;
 }
 
 export function buildAdvisorQuestions(v: FormValues, res: MatchResult): string[] {
   const q: string[] = [];
   if (res.noMatch) {
      q.push('Can you help find and verify real options that meet my stated constraints without changing them?');
-    q.push('What real programs exist that fit all of my constraints together?');
+    if (res.options[0]) q.push(optionQuestion(res.options[0]));
   } else {
     q.push('Which real programs correspond to these sample shapes, if any?');
   }
@@ -218,11 +237,14 @@ export function buildSummary(v: FormValues, res: MatchResult): string {
   L.push(`Budget: ${labelOf(BUDGET_OPTIONS, v.budget)}`);
   L.push(`Schedule: ${labelOf(SCHEDULE_OPTIONS, v.schedule)}`);
   L.push('');
-  if (res.noMatch) L.push('Sample results: no sample pathway fits all stated constraints. Constraints were not relaxed.');
-  else {
-    L.push(`Sample pathways shown (${res.matches.length}, in no ranked order):`);
-    res.matches.forEach((m) => L.push(`- ${m.record.title}: ${m.unknowns.length} unknown item(s) to confirm`));
-  }
+  L.push(res.explorationOnly ? 'Exploration examples only: no preferences to assess.' : 'Discussion order: more shared interests first, then fewer explicit conflicts. This is not a recommendation or a probability of success.');
+  if (res.noMatch) L.push('No sample can be confirmed against all stated constraints. None were relaxed.');
+  res.options.forEach((m) => {
+    L.push(`- ${m.record.title}: ${optionLabel(m, res.explorationOnly)}`);
+    m.explanation.forEach((x) => L.push(`  Why shown: ${x}`));
+    m.conflicts.forEach((x) => L.push(`  Conflict: ${x}`));
+    m.unknowns.forEach((x) => L.push(`  Unknown: ${x}`));
+  });
   L.push('');
   L.push('Questions for my advisor:');
   buildAdvisorQuestions(v, res).forEach((x) => L.push(`- ${x}`));

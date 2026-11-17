@@ -1,15 +1,15 @@
 # Healthcare Pathway Explorer
 
-This is my first prototype for helping students who don't get into nursing but still want to work in healthcare explore other options and prepare for an advisor conversation.
+This is my revised prototype for helping students who don't get into nursing but still want to work in healthcare explore other options and prepare for an advisor conversation.
 
 ## What it does
 Students choose their interests and preferences for training time, schedule, learning format, budget, and location. They can choose Unsure if they haven't decided. The app shows sample pathways, explains what fits or doesn't fit, and gives them questions for an advisor. They can edit, copy, or print their summary, go back to change answers, or reset the form. It doesn't decide whether someone qualifies for a program.
 
 ## How to open it
-Open the [live demo](https://healthcare-pathway-explorer.replit.app/). No sign-in is needed. Choose your interests and preferences, then select "See sample pathways" to explore examples and prepare for advising.
+Open the [live demo](https://pwhiteho-nd.github.io/Healthcare-Pathway-Explorer/). No sign-in is needed. Choose your interests and preferences, then select "See sample pathways" to explore examples and prepare for advising.
 
 ## Run the source
-Use Node.js 24 and pnpm 10 in Replit or Linux. The current workspace configuration and lockfile target Linux.
+Use Node.js 24 and pnpm 10 in Replit or Linux.
 
 ```sh
 pnpm install --frozen-lockfile
@@ -24,29 +24,39 @@ To check the source:
 
 ```sh
 pnpm --filter @workspace/healthcare-pathway-explorer run typecheck
-pnpm --filter @workspace/healthcare-pathway-explorer exec tsx --test src/lib/pathway-logic.test.ts
+node --test artifacts/healthcare-pathway-explorer/src/lib/pathway-logic.test.ts
 PORT=5173 BASE_PATH=/ pnpm --filter @workspace/healthcare-pathway-explorer run build
 ```
 
-The pathway records, matching rules, validation, and summary/question templates are in `artifacts/healthcare-pathway-explorer/src/lib/pathway-logic.ts`. The form and results page are in `src/pages/home.tsx` in that same app folder. The tests cover the three cases below, unknown costs/locations, invalid inputs, Unsure, TEAS-neutral matching, and advisor-question grammar.
+The pathway records, matching rules, validation, and summary/question templates are in `artifacts/healthcare-pathway-explorer/src/lib/pathway-logic.ts`. The form and results page are in `src/pages/home.tsx` in that same app folder. The tests cover typical inputs, the peer-feedback challenge, unknown costs/locations, invalid inputs, Unsure, TEAS-neutral matching, and advisor-summary safeguards.
+
+## Build for GitHub Pages
+Use the same Node.js 24 and pnpm 10 setup:
+
+```sh
+pnpm install --frozen-lockfile
+PORT=5173 BASE_PATH=/Healthcare-Pathway-Explorer/ pnpm --filter @workspace/healthcare-pathway-explorer run build
+touch artifacts/healthcare-pathway-explorer/dist/public/.nojekyll
+```
+
+Put only the contents of `artifacts/healthcare-pathway-explorer/dist/public` at the root of `gh-pages`, including `.nojekyll`. Don't copy source files, attachments, secrets, or local Git history.
+
+In the repository's Settings > Pages, choose **Deploy from a branch**, **gh-pages**, and **/(root)**, then save. The source stays on `main`; verify the published link after each deployment.
 
 ## How AI is used
 Eventually, AI would help make sense of what a student writes and explain how real programs fit their goals. Right now, that part is simulated using preset rules and responses. There is no live AI connection.
 
-The form, matching, error messages, and editable summary work. The five pathways and their formats, training times, and schedules are made-up examples. Real schools, locations, costs, requirements, and sources haven't been added yet. Missing information isn't treated as a match. Anything typed in the optional interests box is included in the summary but isn't used to choose pathways.
+The form, matching, error messages, and editable summary work. The five pathways and their formats, training times, and schedules are made-up examples. Real schools, locations, costs, requirements, and sources haven't been added yet. Missing information is marked unknown and is never treated as meeting a constraint. Discussion options are ordered by shared interests and then fewer explicit conflicts; the first option is not necessarily feasible. Specific conflicts and unknowns remain in the advisor summary. Anything typed in the optional interests box is included in the summary but isn't used to choose pathways.
 
 The app labels these limitations as **Sample data—not verified programs** and **Simulated AI — rules/templates only; no live AI**.
 
 This is a student prototype, not an official ATI, NHA, or university product.
 
-## Three test cases
-Codex checked these three cases in Safari on October 6. Replit Agent also checked the updated version after the visual changes. Codex checked all three cases again on the public demo on October 27, and all passed.
+## Revision evidence
+See [revision.md](revision.md) for the three priority changes, anonymous peer-feedback decisions, before/after comparison, test results, risk response, limitations, and next priorities. See the [draft AI-use disclosure](ai-use-disclosure.md) for tools, prompt excerpts, human corrections, and product AI status.
 
-| Test | What was entered | What happened | Result |
-| --- | --- | --- | --- |
-| Typical | Patient care, in person, up to 12 months, weekday daytime; budget and location unsure | One sample pathway appeared with reasons it fit, reasons other options didn't, advisor questions, and an editable summary. | Pass |
-| Challenge (no match) | Patient care, online, up to 12 months, evenings/weekends | No matches appeared. The app explained why and gave advisor questions without changing the student's choices. | Pass |
-| Empty | No interest selected; everything else left unsure | The app asked the student to choose an interest or Unsure before continuing. | Pass |
+## Demo Video
+Recording pending. This milestone is not ready to submit until my narrated 2–3 minute video is recorded, shared with the instructors, and linked here. [Recording notes and submission checklist](demo-walkthrough.md).
 
 ## Known limitations
 1. **The programs are examples.** They can't confirm real costs or locations yet. My next step would be to add a small set of verified programs in the South Bend area.

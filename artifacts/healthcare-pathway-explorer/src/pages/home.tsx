@@ -8,7 +8,7 @@ import {
 import { Form } from '@/components/ui/form';
 import {
   BUDGET_OPTIONS, EMPTY_FORM, FREE_TEXT_MAX, INTEREST_OPTIONS, LOCATION_OPTIONS, SAMPLE_LABEL, SCHEDULE_OPTIONS,
-  SIM_LABEL, TIME_OPTIONS, buildAdvisorQuestions, buildSummary, matchPathways, validateForm,
+  SIM_LABEL, TIME_OPTIONS, buildAdvisorQuestions, buildSummary, matchPathways, validateForm, optionLabel, optionQuestion,
   type FormValues, type MatchResult,
 } from '@/lib/pathway-logic';
 
@@ -135,7 +135,7 @@ export default function Home() {
 
             <fieldset className={card} aria-describedby="interest-help" data-testid="fieldset-interests">
               <legend className="inline-flex items-center gap-2 px-1 text-lg font-bold"><SectionIcon icon={Compass} />Your interests</legend>
-              <p id="interest-help" className="text-muted-foreground mb-3">Choose areas that sound interesting, or choose Unsure. No need to know your next step yet.</p>
+              <p id="interest-help" className="text-muted-foreground mb-3">Select all that interest you. You can choose more than one, or choose Unsure to explore examples.</p>
               <div className="grid gap-2 sm:grid-cols-2">
                 {INTEREST_OPTIONS.map((o) => (
                   <label key={o.id} className="hpe-choice flex items-center gap-3 min-h-12 rounded-lg border px-3 py-2 bg-background">
@@ -148,6 +148,7 @@ export default function Home() {
                   </label>
                 ))}
               </div>
+              <p className="mt-3 font-bold" role="status" data-testid="interest-count">{form.interests.length} selected</p>
               {submitted && validation.errors.interests && (
                 <p className="mt-3 font-bold text-destructive" data-testid="error-interests">{validation.errors.interests}</p>
               )}
@@ -194,18 +195,16 @@ export default function Home() {
             </div>
 
             <p className="rounded-lg border bg-muted p-4" data-testid="text-disclaimer">
-              These are fictional sample pathways shown in a fixed order, not a ranking. Format, duration, and schedule are fictional scenario assumptions, not real program facts. Nothing here is an eligibility or admission decision, and another pathway does not guarantee later nursing admission.
+              These fictional examples are ordered by shared interests first, then fewer explicit conflicts. Ties keep the sample order. This discussion order does not mean the first option is feasible or best for you. No constraint is relaxed. Format, duration, and schedule are fictional scenario assumptions, not real program facts. Nothing here is an eligibility or admission decision, and another pathway does not guarantee later nursing admission.
             </p>
 
-            {result.noMatch ? (
-              <div className={card} data-testid="state-no-match">
-                <h2 className="text-xl font-bold">No sample pathway can be confirmed to meet all of your constraints</h2>
-                <p className="mt-2">No match: we did not loosen your choices. Each record has a conflict or lacks facts needed to check a stated constraint. This does not mean no real program exists. Bring the questions below to your advisor.</p>
-              </div>
-            ) : (
-              <section aria-labelledby="results-h" className="space-y-4">
-                <h2 id="results-h" className="text-xl font-bold" data-testid="text-results-count">{result.matches.length} sample scenario{result.matches.length === 1 ? '' : 's'} meeting your selected criteria</h2>
-                {result.matches.map((m) => (
+            <div className={card} data-testid="results-guidance">
+              <h2 className="text-xl font-bold">{result.explorationOnly ? 'Start with examples, not matches' : result.noMatch ? 'No full fit confirmed — here are options to discuss' : 'Explore your sample options'}</h2>
+              <p className="mt-2">{result.explorationOnly ? 'You chose Unsure. These examples help start a conversation; we have not inferred your interests.' : 'A conflict means a sample differs from your choice. Unknown means the information is missing. Neither counts as meeting your needs. You decide whether to revise any preference.'}</p>
+            </div>
+            <section aria-labelledby="results-h" className="space-y-4">
+                <h2 id="results-h" className="text-xl font-bold" data-testid="text-results-count">{result.options.length} sample options for discussion</h2>
+                {result.options.map((m) => (
                   <article key={m.record.id} className={card} data-testid={`card-pathway-${m.record.id}`}>
                     <h3 className="flex items-start gap-3 text-lg font-bold"><SectionIcon icon={GraduationCap} /><span>{m.record.title}</span></h3>
                     <p className="text-sm text-muted-foreground">Fictional demonstration only. Institution/provider, location, cost/basis, requirements, source URL, and verification date: not supplied.</p>
@@ -218,28 +217,16 @@ export default function Home() {
                       <dt className="font-bold">Schedule</dt><dd data-testid={`status-schedule-${m.record.id}`}>{statusText[m.statuses.schedule]}</dd>
                       <dt className="font-bold">Budget</dt><dd data-testid={`status-budget-${m.record.id}`}>{statusText[m.statuses.budget]}</dd>
                     </dl>
+                    <p className="mt-3 font-bold" data-testid={`fit-label-${m.record.id}`}>{optionLabel(m, result.explorationOnly)}</p>
+                    {m.conflicts.length > 0 && <div className="mt-3 rounded-lg border-2 border-destructive p-3" data-testid={`conflicts-${m.record.id}`}><h4 className="font-bold">Conflicts with your choices</h4><ul className="list-disc pl-5">{m.conflicts.map((x) => <li key={x}>{x}</li>)}</ul></div>}
                     <h4 className="mt-3 font-bold">Why it appears</h4>
                     <ul className="list-disc pl-5" data-testid={`list-explanation-${m.record.id}`}>{m.explanation.map((x) => <li key={x}>{x}</li>)}</ul>
                     <h4 className="mt-3 font-bold">Unknowns to confirm</h4>
                     <ul className="list-disc pl-5" data-testid={`list-unknowns-${m.record.id}`}>{m.unknowns.map((x) => <li key={x}>{x}</li>)}</ul>
+                    <p className="mt-3"><strong>Ask your advisor:</strong> {optionQuestion(m)}</p>
                   </article>
                 ))}
               </section>
-            )}
-
-            {result.excluded.length > 0 && (
-              <section className={card} data-testid="section-excluded">
-                <h2 className="text-lg font-bold">Not matched: conflicts or missing constraint facts</h2>
-                <ul className="mt-2 space-y-2">
-                  {result.excluded.map((m) => (
-                    <li key={m.record.id} data-testid={`excluded-${m.record.id}`}>
-                      <span className="font-bold">{m.record.title}</span>
-                      <ul className="list-disc pl-5 text-sm">{m.conflicts.map((c) => <li key={c}>{c}</li>)}{Object.values(m.statuses).includes('unknown') && m.unknowns.map((u) => <li key={u}>{u}</li>)}</ul>
-                    </li>
-                  ))}
-                </ul>
-              </section>
-            )}
 
             <h2 id="advising-prep" className="flex items-center gap-3 text-2xl font-bold scroll-mt-6"><SectionIcon icon={BookOpen} />Prepare for advising</h2>
             <section className={card} data-testid="section-questions">

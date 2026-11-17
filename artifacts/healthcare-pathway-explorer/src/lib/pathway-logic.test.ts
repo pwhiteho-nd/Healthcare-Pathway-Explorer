@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
-import { EMPTY_FORM, PATHWAYS, buildAdvisorQuestions, buildSummary, matchPathways, validateForm } from './pathway-logic';
+import { EMPTY_FORM, PATHWAYS, buildAdvisorQuestions, buildSummary, matchPathways, validateForm } from './pathway-logic.ts';
 
 test('typical: patient care, in person, within 12 months, daytime, budget unsure', () => {
   const input = { ...EMPTY_FORM, interests: ['patient-care'], location: 'in-person', trainingTime: 'up-to-12', schedule: 'daytime' };
@@ -57,4 +57,44 @@ test('advisor format questions use the correct article', () => {
   }
   const input = { ...EMPTY_FORM, interests: ['patient-care'] };
   assert.ok(!buildAdvisorQuestions(input, matchPathways(input)).some((q) => q.startsWith('Which real options offer')));
+});
+
+test('typical second case: health data online, 24 months, evening schedule', () => {
+  const input = { ...EMPTY_FORM, interests: ['health-data'], location: 'online', trainingTime: 'up-to-24', schedule: 'evening-weekend' };
+  const r = matchPathways(input);
+  assert.deepEqual(r.matches.map(m => m.record.id), ['p4']);
+  assert.equal(r.options[0].record.id, 'p4');
+});
+
+test('peer challenge: relevant discussion option remains visible without hiding conflicts', () => {
+  const input = { ...EMPTY_FORM, interests: ['health-data', 'public-health'], location: 'in-person', trainingTime: 'up-to-12', budget: 'moderate', schedule: 'daytime' };
+  const r = matchPathways(input);
+  assert.equal(r.noMatch, true);
+  assert.equal(r.options.length, 5);
+  assert.equal(r.options[0].record.id, 'p4');
+  assert.equal(r.options[0].conflicts.length, 3);
+  assert.equal(r.options[0].statuses.budget, 'unknown');
+  const summary = buildSummary(input, r);
+  for (const text of r.options[0].conflicts) assert.ok(summary.includes(`Conflict: ${text}`));
+  assert.ok(summary.includes('Cost is unknown'));
+});
+
+test('risk: ranking and exported summary cannot silently relax budget or region', () => {
+  const input = { ...EMPTY_FORM, interests: ['patient-care'], budget: 'low', preferredPlace: 'South Bend' };
+  const r = matchPathways(input);
+  assert.equal(r.matches.length, 0);
+  assert.equal(r.options[0].record.id, 'p1');
+  assert.ok(r.options.every(m => m.statuses.budget === 'unknown' && m.statuses.preferredPlace === 'unknown'));
+  const summary = buildSummary(input, r);
+  assert.ok(summary.includes('Needs verification — fit cannot be confirmed'));
+  assert.ok(summary.includes('Up to $1,000'));
+  assert.ok(summary.includes('South Bend'));
+  assert.ok(summary.includes('None were relaxed'));
+});
+
+test('all unsure means exploration only, not inferred suitability', () => {
+  const input = { ...EMPTY_FORM, interests: ['unsure'] };
+  const r = matchPathways(input);
+  assert.equal(r.explorationOnly, true);
+  assert.ok(buildSummary(input, r).includes('no preferences to assess'));
 });
