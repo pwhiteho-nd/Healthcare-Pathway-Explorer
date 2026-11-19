@@ -56,7 +56,7 @@ This is a student prototype, not an official ATI, NHA, or university product.
 See [revision.md](revision.md) for the three priority changes, anonymous peer-feedback decisions, before/after comparison, test results, risk response, limitations, and next priorities. See the [draft AI-use disclosure](ai-use-disclosure.md) for tools, prompt excerpts, human corrections, and product AI status.
 
 ## Demo Video
-Recording pending. This milestone is not ready to submit until my narrated 2–3 minute video is recorded, shared with the instructors, and linked here. [Recording notes and submission checklist](demo-walkthrough.md).
+[Watch my 2:46 narrated demo on Google Drive](https://drive.google.com/file/d/1U0QXcFrOU1CLLl9NARN4t8bgtzCcVrBj/view?usp=sharing). Viewing access is granted to both course instructors; sign in with your authorized Notre Dame account. [Recording notes and submission checklist](demo-walkthrough.md).
 
 ## Known limitations
 1. **The programs are examples.** They can't confirm real costs or locations yet. My next step would be to add a small set of verified programs in the South Bend area.

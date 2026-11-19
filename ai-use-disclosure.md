@@ -1,16 +1,16 @@
-# Draft AI-use disclosure
+# AI-Use Record
 
-I already had the problem and capstone context before this project. I used ChatGPT Codex to help organize the work around the assignment, revise the prototype, write tests, and draft the documentation. The existing Replit prototype was built with help from Replit Agent and Codex.
+**Tools used:** ChatGPT Codex. Replit Agent also helped build the initial prototype.
 
-Representative excerpts from my actual prompts:
-- “go fix up my whole thing then for gen ai only for the project prototype revision. go do it according to rubric and also what the notion page says” — Codex used the assignment and feedback to focus the revision and prepare code, tests, and documentation.
-- “But, like, other stuff, that's how I write.” — I asked for changes that improve the substance without replacing my voice.
-- “This is a direction to test, not a solution my interviews have already validated.” — I supplied this boundary so the project wouldn't overstate the interview evidence.
+**Representative prompts (paraphrased):**
+- Help me organize my capstone research and product idea around the assignment while keeping my voice. This helped structure the explanations; I redirected the focus to problem framing before development.
+- Help me improve the prototype using the peer feedback and keep the changes within my project's scope. This led to clearer conflicts and unknowns, more useful discussion options, and advisor questions. I kept the focus on exploration rather than admission decisions.
+- Help me check the revised flow and document the tests, limitations, and AI use. This produced test cases and documentation; I asked for the writing to sound like me and reflect my role in the project.
 
-A correction I made was clarifying that ATI cannot directly identify rejected nursing applicants and that a TEAS score cannot tell us admission status. That matters because the prototype should help students explore, not label them or decide whether they qualify.
+**How AI contributed:** I provided the problem, interview context, initial product direction, and peer feedback. AI helped organize my explanations, implement prototype changes, debug, and run checks. The project builds on my ongoing capstone research.
 
-For this revision, the implementation adapts the peer suggestion to always recommend a path: options are ordered for discussion, with conflicts and missing information kept visible. It does not force a recommendation. Codex proposed and implemented that approach; I still need to review the final experience myself.
+**Suggestion I corrected:** During problem framing, AI shifted toward instructions for building in Replit. I redirected it to explain the problem and idea before moving into development.
 
-Codex ran automated checks of the rules and summary output, including two typical inputs, a peer-feedback challenge, invalid inputs, uncertainty, and a risk case. These checks do not establish student usefulness or live-model accuracy. Student/advisor review and verification of real program data remain necessary.
+**Verification and additional testing:** Automated checks and browser tests were used to check the revised flow. I still need to review the explanations with students and advisors to see whether they are useful and understandable. Real program information also needs verification.
 
-In the product itself, AI is simulated. Inputs are selected interests, format, training time, budget, region, and schedule. Rules compare those choices with five fictional examples. Templates output reasons, conflicts, unknowns, and advisor questions. The optional note is copied to the summary, not interpreted. There is no model call, AI API key, or admission decision. A future model would need verified sources and tests for unsupported claims and inappropriate tradeoffs.
+**AI inside the prototype:** The current version uses rules and templates, not a live AI model. It compares selected interests and constraints with fictional pathways and produces explanations and advisor questions. It does not make admission or eligibility decisions.
